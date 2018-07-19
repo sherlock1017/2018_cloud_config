@@ -1,0 +1,94 @@
+---                             #文件開頭
+azs:
+- name: nova
+  cloud_properties:
+    availability_zone: nova
+networks:
+- name: test           #default網路，通常編譯會選擇此網段，需要去Openstack創建和修改
+  type: manual
+  subnets:
+  - dns:
+    - 8.8.8.8           #需修改
+    range: 10.0.0.0/20     #需修改,對應openstack上的網路
+    gateway: 10.0.0.1      #需修改
+    azs:
+    - nova
+    cloud_properties:           #需要對應openstack修改net id
+      net_id: 645b0254-fe6a-41f7-8e26-e8bdaa723346
+    reserved:                   #通常保留0~5
+    - 10.0.0.0-10.0.0.5
+    static:
+    - 10.0.0.10-10.0.0.255
+#- name: db-service              #db會開在此網段，如果平台上沒有需要創建
+#  subnets:
+#  - azs:
+#    - nova
+#    cloud_properties:           #需修改
+#      net_id: c8337805-02e1-47a3-9653-6b6c9ec1da76
+#    dns:
+#    - 10.13.65.20
+#    - 10.13.65.6               #需修改
+#    gateway: 10.100.0.1        #需修改
+#    range: 10.100.0.0/16       #需修改
+#    reserved:                   #通常保留0~5
+#    - 10.100.0.0-10.100.0.5
+#    static:
+#    - 10.100.0.6-10.100.255.254
+#- name: vip-network             #對外浮動IP設定
+#  type: vip
+  cloud_properties: {}
+vm_types:                       #vm型態，先要準備好flavor，寫在cloud-config中好讓manifest指定
+- name: m1.small
+  cloud_properties:
+    instance_type: m1.small
+- name: Standard_DS2				#名稱要對應openstack的名稱
+  cloud_properties:
+    instance_type: Standard_DS2
+- name: Standard_DS3
+  cloud_properties:
+    instance_type: Standard_DS3
+- name: Standard_DS4
+  cloud_properties:
+    instance_type: Standard_DS4
+
+- name: default					#做prometheus練習時建置的
+  cloud_properties:
+    instance_type: m1.small
+#- name: m1.xlarge
+#  cloud_properties:
+#    instance_type: m1.xlarge
+disk_types:                    			 #vm disk 大小，好讓manifest指定
+- name: '1024'                                 	 #有需要可新增
+  disk_size: 1024
+  cloud_properties: {}
+- name: '2048'
+  disk_size: 2048
+  cloud_properties: {}
+- name: '5120'
+  disk_size: 5120
+  cloud_properties: {}
+- name: '10240'
+  disk_size: 10240
+  cloud_properties: {}
+- name: '20480'
+  disk_size: 20480
+  cloud_properties: {}
+- name: '131072'
+  disk_size: 131072
+  cloud_properties: {}
+- name: '512000'
+  disk_size: 512000
+  cloud_properties: {}
+compilation:                    #compilation 要用的規格
+  workers: 4
+  network: test       		 #前面寫到的網路名稱
+  az: nova
+  reuse_compilation_vms: true  	 #要不要重複使用compilation
+  vm_type: m1.small           	 #compilation 機器規格,空間吃緊可調小
+#  env:                          #為每台vm user 加上 password “c1oudc0w”，去掉即沒有
+#    bosh:
+#      password: "$6$bf27ee489ebb4aaf$QUOtJSZGjZvd9X6ch7Tsm0zMARt4ADAmk6hbeqSUHIT6zqct/7/XkeWkC5OfZE7sTV9LmlTedulkMtzugpe/j0"
+  vm_extensions: []
+vm_extensions:
+- name: public_ip              	 #外部網路
+  cloud_properties: {}

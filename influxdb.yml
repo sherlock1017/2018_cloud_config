@@ -1,0 +1,49 @@
+name: influxdb						#這邊要對應job
+releases:
+  - name: &release_name influxdb
+    version: latest
+
+stemcells:
+- alias: trusty
+  os: ubuntu-trusty
+  version: latest
+
+jobs:					#influxdb檔案名稱,以及底下的套件名稱
+- name: influxdb
+  instances: 1
+  templates:
+  - name: influxdb
+    release: *release_name
+  - name: chronograf
+    release: *release_name
+  - name: telegraf
+    release: *release_name
+  - name: kapacitor
+    release: *release_name
+  vm_type: Standard_DS4
+  persistent_disk_type: 10240		#單位mb
+  stemcell: trusty
+  networks:
+  - name: &network_name test
+    static_ips:
+    - 10.0.0.20
+#    - INTERNAL_NETWORK_IP
+#  - name: vip
+#    static_ips:
+#    - EXTERNAL_NETWORK_IP
+  azs:
+  - nova			#HA
+
+properties:
+  influxdb:
+    admin:
+      user: 123456
+      password: 123456
+    database: test
+
+update:
+  canaries: 1
+  max_in_flight: 10
+  canary_watch_time: 1000-30000
+  update_watch_time: 1000-30000
+
